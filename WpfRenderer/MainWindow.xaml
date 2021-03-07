@@ -5,8 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:sanjigen.WpfRenderer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800"
+        UseLayoutRounding="True" ResizeMode="NoResize" SizeToContent="WidthAndHeight"
+        Loaded="Window_Loaded">
     <Grid>
-
+        <Image x:Name="FrontBuffer" Width="1280" Height="720"/>
+        <TextBlock x:Name="FPStext" HorizontalAlignment="Left" Margin="10,0,0,10" TextWrapping="Wrap" Text="??? fps" VerticalAlignment="Bottom" Foreground="#D1FFFFFF">
+            <TextBlock.Effect>
+                <DropShadowEffect BlurRadius="1" ShadowDepth="1"/>
+            </TextBlock.Effect>
+        </TextBlock>
     </Grid>
 </Window>
