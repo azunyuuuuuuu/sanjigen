@@ -10,7 +10,7 @@ using sanjigen.Engine.Formats;
 
 namespace sanjigen.Engine
 {
-    public class Device
+public class Device
     {
         private byte[] backBuffer;
         private readonly float[] depthBuffer;
@@ -33,7 +33,9 @@ namespace sanjigen.Engine
             depthBuffer = new float[renderWidth * renderHeight];
             lockBuffer = new object[renderWidth * renderHeight];
             for (var i = 0; i < lockBuffer.Length; i++)
+            {
                 lockBuffer[i] = new object();
+            }
         }
 
         // Called to put a pixel on screen at a specific X,Y coordinates
@@ -98,9 +100,10 @@ namespace sanjigen.Engine
             throw new NotImplementedException();
         }
 
-        public byte[] GetBackBuffer()
+        // Clamping values to keep them between 0 and 1
+        float Clamp(float value, float min = 0, float max = 1)
         {
-            return backBuffer;
+            return Math.Max(min, Math.Min(value, max));
         }
 
         // Interpolating the value between 2 vertices 
@@ -108,7 +111,7 @@ namespace sanjigen.Engine
         // and gradient the % between the 2 points
         float Interpolate(float min, float max, float gradient)
         {
-            return min + (max - min) * MathUtil.Clamp(gradient, min, max);
+            return min + (max - min) * Clamp(gradient);
         }
 
         // Project takes some 3D coordinates and transform them
@@ -144,7 +147,10 @@ namespace sanjigen.Engine
         {
             var lightDirection = lightPosition - vertex;
 
-            return Math.Max(0, Vector3.Dot(Vector3.Normalize(normal), Vector3.Normalize(lightDirection)));
+            normal.Normalize();
+            lightDirection.Normalize();
+
+            return Math.Max(0, Vector3.Dot(normal, lightDirection));
         }
 
         // drawing line between 2 points from left to right
@@ -196,9 +202,9 @@ namespace sanjigen.Engine
                 if (texture != null)
                     textureColor = texture.Map(u, v);
                 else
-                    textureColor = Color4.White;
+                    textureColor = new Color4(1, 1, 1, 1);
 
-                var trueColor = color * MathUtil.Clamp(ndotl, 0.3f, 1.0f) * textureColor;
+                var trueColor = color * Clamp(ndotl, 0.3f, 1.0f) * textureColor;
                 trueColor.Alpha = 1;
 
                 // changing the native color value using the cosine of the angle
@@ -399,7 +405,7 @@ namespace sanjigen.Engine
                 var transformMatrix = worldView * projectionMatrix;
 
 
-                for (int faceIndex = 0; faceIndex < mesh.Faces.Length; faceIndex++)
+                Parallel.For(0, mesh.Faces.Length, faceIndex =>
                 {
                     var face = mesh.Faces[faceIndex];
 
@@ -426,7 +432,7 @@ namespace sanjigen.Engine
                     //var color = 0.25f + (faceIndex % mesh.Faces.Length) * 0.75f / mesh.Faces.Length;
                     var color = 1.0f;
                     DrawTriangle(pixelA, pixelB, pixelC, new Color4(color, color, color, 1), mesh.Texture);
-                }
+                });
             }
         }
         public async Task<Mesh[]> LoadJSONFileAsync(string filename)
