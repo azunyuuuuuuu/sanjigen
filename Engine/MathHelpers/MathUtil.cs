@@ -45,7 +45,7 @@
 
 using System;
 
-namespace sanjigen.Engine
+namespace sanjigen.Engine.MathHelpers
 {
     public static class MathUtil
     {

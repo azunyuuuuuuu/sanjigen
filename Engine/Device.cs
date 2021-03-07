@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Dynamic;
 using sanjigen.Engine.Formats;
+using sanjigen.Engine.MathHelpers;
 
 namespace sanjigen.Engine
 {

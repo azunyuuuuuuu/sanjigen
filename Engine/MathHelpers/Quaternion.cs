@@ -48,7 +48,7 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace sanjigen.Engine
+namespace sanjigen.Engine.MathHelpers
 {
     /// <summary>
     /// Represents a four dimensional mathematical quaternion.

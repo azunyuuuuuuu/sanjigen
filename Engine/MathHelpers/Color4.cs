@@ -48,7 +48,7 @@ using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace sanjigen.Engine
+namespace sanjigen.Engine.MathHelpers
 {
     public struct Color4 : IEquatable<Color4>, IFormattable
     {

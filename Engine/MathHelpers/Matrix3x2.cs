@@ -23,7 +23,7 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace sanjigen.Engine
+namespace sanjigen.Engine.MathHelpers
 {
     /// <summary>
     /// Direct2D Matrix3x2. Supports implicit cast from <see cref="Matrix"/>.
