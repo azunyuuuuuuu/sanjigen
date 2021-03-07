@@ -69,8 +69,9 @@ namespace sanjigen.WpfRenderer
             _device.Render(_camera, _meshes);
 
             // Flushing the back buffer into the front buffer
-            var buffer = _device.GetBackBuffer();
-            _bmp.WritePixels(new Int32Rect(0, 0, _device.Width, _device.Height), buffer, _bmp.BackBufferStride, 0);
+            _bmp.Lock();
+            _bmp.WritePixels(new Int32Rect(0, 0, _device.Width, _device.Height), _device.BackBuffer, _bmp.BackBufferStride, 0);
+            _bmp.Unlock();
         }
     }
 }

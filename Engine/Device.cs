@@ -21,6 +21,7 @@ namespace sanjigen.Engine
 
         public int Width { get { return renderWidth; } }
         public int Height { get { return renderHeight; } }
+        public byte[] BackBuffer { get { return backBuffer; } }
 
         public Device(int width, int height)
         {
@@ -399,7 +400,7 @@ namespace sanjigen.Engine
                 var transformMatrix = worldView * projectionMatrix;
 
 
-                Parallel.For(0, mesh.Faces.Length, faceIndex =>
+                for (int faceIndex = 0; faceIndex < mesh.Faces.Length; faceIndex++)
                 {
                     var face = mesh.Faces[faceIndex];
 
@@ -426,9 +427,7 @@ namespace sanjigen.Engine
                     //var color = 0.25f + (faceIndex % mesh.Faces.Length) * 0.75f / mesh.Faces.Length;
                     var color = 1.0f;
                     DrawTriangle(pixelA, pixelB, pixelC, new Color4(color, color, color, 1), mesh.Texture);
-
-                    faceIndex++;
-                });
+                }
             }
         }
         public async Task<Mesh[]> LoadJSONFileAsync(string filename)
