@@ -1,9 +1,9 @@
-﻿using SharpDX;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Numerics;
 
 namespace sanjigen.Engine
 {
@@ -41,7 +41,7 @@ namespace sanjigen.Engine
                 var vertexC = Vertices[face.C];
 
                 Faces[faceIndex].Normal = (vertexA.Normal + vertexB.Normal + vertexC.Normal) / 3.0f;
-                Faces[faceIndex].Normal.Normalize();
+                Vector3.Normalize(Faces[faceIndex].Normal);
             });
 
         }

@@ -1,11 +1,11 @@
-﻿using SharpDX;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
+using System.Numerics;
+using System.Drawing;
 
 namespace sanjigen.Engine
 {
@@ -13,16 +13,14 @@ namespace sanjigen.Engine
     {
         private byte[] backBuffer;
         private readonly float[] depthBuffer;
-        private WriteableBitmap bmp;
         private readonly int renderWidth;
         private readonly int renderHeight;
         private object[] lockBuffer;
 
-        public Device(WriteableBitmap bmp)
+        public Device(int width, int height)
         {
-            this.bmp = bmp;
-            renderWidth = bmp.PixelWidth;
-            renderHeight = bmp.PixelHeight;
+            renderWidth = width;
+            renderHeight = height;
 
             // the back buffer size is equal to the number of pixels to draw
             // on screen (width*height) * 4 (R,G,B & Alpha values). 
@@ -30,9 +28,7 @@ namespace sanjigen.Engine
             depthBuffer = new float[renderWidth * renderHeight];
             lockBuffer = new object[renderWidth * renderHeight];
             for (var i = 0; i < lockBuffer.Length; i++)
-            {
                 lockBuffer[i] = new object();
-            }
         }
 
         // Called to put a pixel on screen at a specific X,Y coordinates
@@ -94,14 +90,7 @@ namespace sanjigen.Engine
 
         public void Present()
         {
-            var rect = new System.Windows.Int32Rect(0, 0, renderWidth, renderHeight);
-            bmp.WritePixels(rect, backBuffer, bmp.BackBufferStride, 0);
-        }
-
-        // Clamping values to keep them between 0 and 1
-        float Clamp(float value, float min = 0, float max = 1)
-        {
-            return Math.Max(min, Math.Min(value, max));
+            throw new NotImplementedException();
         }
 
         // Interpolating the value between 2 vertices 
@@ -109,20 +98,20 @@ namespace sanjigen.Engine
         // and gradient the % between the 2 points
         float Interpolate(float min, float max, float gradient)
         {
-            return min + (max - min) * Clamp(gradient);
+            return min + (max - min) * Math.Clamp(gradient, min, max);
         }
 
         // Project takes some 3D coordinates and transform them
         // in 2D coordinates using the transformation matrix
         // It also transform the same coordinates and the normal to the vertex 
         // in the 3D world
-        public Vertex Project(Vertex vertex, Matrix transMat, Matrix world)
+        public Vertex Project(Vertex vertex, Matrix4x4 transMat, Matrix4x4 world)
         {
             // transforming the coordinates into 2D space
-            var point2d = Vector3.TransformCoordinate(vertex.Coordinates, transMat);
+            var point2d = Vector3.Transform(vertex.Coordinates, transMat);
             // transforming the coordinates & the normal to the vertex in the 3D world
-            var point3dWorld = Vector3.TransformCoordinate(vertex.Coordinates, world);
-            var normal3dWorld = Vector3.TransformCoordinate(vertex.Normal, world);
+            var point3dWorld = Vector3.Transform(vertex.Coordinates, world);
+            var normal3dWorld = Vector3.Transform(vertex.Normal, world);
 
             // The transformed coordinates will be based on coordinate system
             // starting on the center of the screen. But drawing on screen normally starts
@@ -145,10 +134,7 @@ namespace sanjigen.Engine
         {
             var lightDirection = lightPosition - vertex;
 
-            normal.Normalize();
-            lightDirection.Normalize();
-
-            return Math.Max(0, Vector3.Dot(normal, lightDirection));
+            return Math.Max(0, Vector3.Dot(Vector3.Normalize(normal), Vector3.Normalize(lightDirection)));
         }
 
         // drawing line between 2 points from left to right
@@ -200,9 +186,9 @@ namespace sanjigen.Engine
                 if (texture != null)
                     textureColor = texture.Map(u, v);
                 else
-                    textureColor = new Color4(1, 1, 1, 1);
+                    textureColor = Color4.White;
 
-                var trueColor = color * Clamp(ndotl, 0.3f, 1.0f) * textureColor;
+                var trueColor = color * Math.Clamp(ndotl, 0.3f, 1.0f) * textureColor;
                 trueColor.Alpha = 1;
 
                 // changing the native color value using the cosine of the angle
@@ -388,16 +374,16 @@ namespace sanjigen.Engine
         public void Render(Camera camera, params Mesh[] meshes)
         {
             // To understand this part, please read the prerequisites resources
-            var viewMatrix = Matrix.LookAtLH(camera.Position, camera.Target, Vector3.UnitY);
-            var projectionMatrix = Matrix.PerspectiveFovLH(0.78f,
+            var viewMatrix = Matrix4x4.CreateLookAt(camera.Position, camera.Target, Vector3.UnitY);
+            var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(0.78f,
                                                            (float)renderWidth / renderHeight,
                                                            0.01f, 1.0f);
 
             foreach (Mesh mesh in meshes)
             {
                 // Beware to apply rotation before translation 
-                var worldMatrix = Matrix.RotationYawPitchRoll(mesh.Rotation.Y, mesh.Rotation.X, mesh.Rotation.Z) *
-                                  Matrix.Translation(mesh.Position);
+                var worldMatrix = Matrix4x4.CreateFromYawPitchRoll(mesh.Rotation.Y, mesh.Rotation.X, mesh.Rotation.Z) *
+                                  Matrix4x4.CreateTranslation(mesh.Position);
 
                 var worldView = worldMatrix * viewMatrix;
                 var transformMatrix = worldView * projectionMatrix;
@@ -413,7 +399,7 @@ namespace sanjigen.Engine
                         //return;
                     }*/
 
-                    var test = Vector3.TransformCoordinate(face.Normal, worldMatrix);
+                    var test = Vector3.Transform(face.Normal, worldMatrix);
                     var cameraPosition = camera.Position - mesh.Vertices[face.A].WorldCoordinates;
                     var angle = Vector3.Dot(Vector3.Normalize(test), Vector3.Normalize(cameraPosition));
                     if (angle < -0.1f)
@@ -439,12 +425,9 @@ namespace sanjigen.Engine
         {
             var meshes = new List<Mesh>();
             var materials = new Dictionary<String, Material>();
-            string data = string.Empty;
-            using (var sr = new StreamReader(filename))
-            {
-                data = await sr.ReadToEndAsync().ConfigureAwait(false);
-            }
-            dynamic jsonObject = Newtonsoft.Json.JsonConvert.DeserializeObject(data);
+
+            var data = await File.ReadAllTextAsync(filename);
+            dynamic jsonObject = System.Text.Json.JsonSerializer.Deserialize<object>(data);
 
             for (var materialIndex = 0; materialIndex < jsonObject.materials.Count; materialIndex++)
             {
