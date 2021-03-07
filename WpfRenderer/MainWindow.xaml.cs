@@ -34,7 +34,7 @@ namespace sanjigen.WpfRenderer
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            _bmp = new WriteableBitmap(1280, 720, 96, 96, PixelFormats.Bgra32, BitmapPalettes.WebPalette);
+            _bmp = new WriteableBitmap(320, 240, 96, 96, PixelFormats.Bgra32, BitmapPalettes.WebPalette);
 
             _device = new Device((int)_bmp.Width, (int)_bmp.Height);
 
@@ -53,10 +53,11 @@ namespace sanjigen.WpfRenderer
 
         private void CompositionTarget_Rendering(object sender, EventArgs e)
         {
+            _device.Clear(0, 0, 0, 255);
+            
             // calculate fps
             var now = DateTime.Now;
             var currentFps = 1000.0 / (now - previousDate).TotalMilliseconds;
-            _device.Clear(0, 0, 0, 255);
             previousDate = now;
 
             FPStext.Text = string.Format("{0:0.00} fps", currentFps);
