@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace sanjigen.Engine
 {
@@ -21,16 +23,22 @@ namespace sanjigen.Engine
             Load(filename);
         }
 
-        private async void Load(string filename)
+        private void Load(string filename)
         {
-            using (var stream = new StreamReader(filename))
+            using var image = Image.Load<Rgba32>(filename);
+
+            internalBuffer = new byte[image.Width * image.Height * 4];
+
+            if (image.TryGetSinglePixelSpan(out var pixelSpan))
             {
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.UriSource = new Uri(filename, UriKind.Relative);
-                bitmapImage.EndInit();
-                internalBuffer = new byte[width * height * 4];
-                bitmapImage.CopyPixels(internalBuffer, width * 4, 0);
+                int i = 0;
+                foreach (var pixel in pixelSpan)
+                {
+                    internalBuffer[i++] = pixel.B;
+                    internalBuffer[i++] = pixel.G;
+                    internalBuffer[i++] = pixel.R;
+                    internalBuffer[i++] = pixel.A;
+                }
             }
         }
 
