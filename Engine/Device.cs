@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 using System.Drawing;
+using System.Dynamic;
+using sanjigen.Engine.Formats;
 
 namespace sanjigen.Engine
 {
@@ -16,6 +18,9 @@ namespace sanjigen.Engine
         private readonly int renderWidth;
         private readonly int renderHeight;
         private object[] lockBuffer;
+
+        public int Width { get { return renderWidth; } }
+        public int Height { get { return renderHeight; } }
 
         public Device(int width, int height)
         {
@@ -91,6 +96,11 @@ namespace sanjigen.Engine
         public void Present()
         {
             throw new NotImplementedException();
+        }
+
+        public byte[] GetBackBuffer()
+        {
+            return backBuffer;
         }
 
         // Interpolating the value between 2 vertices 
@@ -427,26 +437,26 @@ namespace sanjigen.Engine
             var materials = new Dictionary<String, Material>();
 
             var data = await File.ReadAllTextAsync(filename);
-            dynamic jsonObject = System.Text.Json.JsonSerializer.Deserialize<object>(data);
+            var jsonObject = System.Text.Json.JsonSerializer.Deserialize<BabylonModelFormat>(data);
 
-            for (var materialIndex = 0; materialIndex < jsonObject.materials.Count; materialIndex++)
+            for (var materialIndex = 0; materialIndex < jsonObject.Materials.Count; materialIndex++)
             {
                 var material = new Material();
-                material.Name = jsonObject.materials[materialIndex].name.Value;
-                material.ID = jsonObject.materials[materialIndex].id.Value;
-                if (jsonObject.materials[materialIndex].diffuseTexture != null)
-                    material.DiffuseTextureName = jsonObject.materials[materialIndex].diffuseTexture.name.Value;
+                material.Name = jsonObject.Materials[materialIndex].Name;
+                material.ID = jsonObject.Materials[materialIndex].Id;
+                if (jsonObject.Materials[materialIndex].DiffuseTexture != null)
+                    material.DiffuseTextureName = jsonObject.Materials[materialIndex].DiffuseTexture.Name;
 
                 materials.Add(material.ID, material);
             }
 
-            for (var meshIndex = 0; meshIndex < jsonObject.meshes.Count; meshIndex++)
+            for (var meshIndex = 0; meshIndex < jsonObject.Meshes.Count; meshIndex++)
             {
-                var verticesArray = jsonObject.meshes[meshIndex].vertices;
+                var verticesArray = jsonObject.Meshes[meshIndex].Vertices;
                 // Faces
-                var indicesArray = jsonObject.meshes[meshIndex].indices;
+                var indicesArray = jsonObject.Meshes[meshIndex].Indices;
 
-                var uvCount = jsonObject.meshes[meshIndex].uvCount.Value;
+                var uvCount = jsonObject.Meshes[meshIndex].UvCount;
                 var verticesStep = 1;
 
                 // Depending of the number of texture's coordinates per vertex
@@ -468,18 +478,18 @@ namespace sanjigen.Engine
                 var verticesCount = verticesArray.Count / verticesStep;
                 // number of faces is logically the size of the array divided by 3 (A, B, C)
                 var facesCount = indicesArray.Count / 3;
-                var mesh = new Mesh(jsonObject.meshes[meshIndex].name.Value, verticesCount, facesCount);
+                var mesh = new Mesh(jsonObject.Meshes[meshIndex].Name, verticesCount, facesCount);
 
                 // Filling the Vertices array of our mesh first
                 for (var index = 0; index < verticesCount; index++)
                 {
-                    var x = (float)verticesArray[index * verticesStep].Value;
-                    var y = (float)verticesArray[index * verticesStep + 1].Value;
-                    var z = (float)verticesArray[index * verticesStep + 2].Value;
+                    var x = (float)verticesArray[index * verticesStep];
+                    var y = (float)verticesArray[index * verticesStep + 1];
+                    var z = (float)verticesArray[index * verticesStep + 2];
                     // Loading the vertex normal exported by Blender
-                    var nx = (float)verticesArray[index * verticesStep + 3].Value;
-                    var ny = (float)verticesArray[index * verticesStep + 4].Value;
-                    var nz = (float)verticesArray[index * verticesStep + 5].Value;
+                    var nx = (float)verticesArray[index * verticesStep + 3];
+                    var ny = (float)verticesArray[index * verticesStep + 4];
+                    var nz = (float)verticesArray[index * verticesStep + 5];
 
                     mesh.Vertices[index] = new Vertex
                     {
@@ -490,8 +500,8 @@ namespace sanjigen.Engine
                     if (uvCount > 0)
                     {
                         // Loading the texture coordinates
-                        float u = (float)verticesArray[index * verticesStep + 6].Value;
-                        float v = (float)verticesArray[index * verticesStep + 7].Value;
+                        float u = (float)verticesArray[index * verticesStep + 6];
+                        float v = (float)verticesArray[index * verticesStep + 7];
                         mesh.Vertices[index].TextureCoordinates = new Vector2(u, v);
                     }
                 }
@@ -499,20 +509,20 @@ namespace sanjigen.Engine
                 // Then filling the Faces array
                 for (var index = 0; index < facesCount; index++)
                 {
-                    var a = (int)indicesArray[index * 3].Value;
-                    var b = (int)indicesArray[index * 3 + 1].Value;
-                    var c = (int)indicesArray[index * 3 + 2].Value;
+                    var a = (int)indicesArray[index * 3];
+                    var b = (int)indicesArray[index * 3 + 1];
+                    var c = (int)indicesArray[index * 3 + 2];
                     mesh.Faces[index] = new Face { A = a, B = b, C = c };
                 }
 
                 // Getting the position you've set in Blender
-                var position = jsonObject.meshes[meshIndex].position;
-                mesh.Position = new Vector3((float)position[0].Value, (float)position[1].Value, (float)position[2].Value);
+                var position = jsonObject.Meshes[meshIndex].Position;
+                mesh.Position = new Vector3((float)position[0], (float)position[1], (float)position[2]);
 
                 if (uvCount > 0)
                 {
                     // Texture
-                    var meshTextureID = jsonObject.meshes[meshIndex].materialId.Value;
+                    var meshTextureID = jsonObject.Meshes[meshIndex].MaterialId;
                     var meshTextureName = materials[meshTextureID].DiffuseTextureName;
                     mesh.Texture = new Texture(meshTextureName, 512, 512);
                 }
