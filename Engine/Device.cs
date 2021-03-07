@@ -108,7 +108,7 @@ namespace sanjigen.Engine
         // and gradient the % between the 2 points
         float Interpolate(float min, float max, float gradient)
         {
-            return min + (max - min) * Math.Clamp(gradient, min, max);
+            return min + (max - min) * Math.Clamp(gradient, Math.Min(min, max), Math.Max(min, max));
         }
 
         // Project takes some 3D coordinates and transform them
