@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TreiD
+namespace sanjigen.Engine
 {
     public class Material
     {
