@@ -13,33 +13,64 @@ namespace sanjigen.Engine
     public class Texture
     {
         private byte[] internalBuffer;
-        private int width;
-        private int height;
+        private int _width;
+        private int _height;
+
+        public string _filename { get; }
 
         public Texture(string filename, int width, int height)
         {
-            this.width = width;
-            this.height = height;
-            Load(filename);
+            _width = width;
+            _height = height;
+            _filename = filename;
+
+            Load(_filename);
         }
 
-        private void Load(string filename)
+        public void Load(string filename)
         {
-            using var image = Image.Load<Rgba32>(filename);
-
-            internalBuffer = new byte[image.Width * image.Height * 4];
-
-            if (image.TryGetSinglePixelSpan(out var pixelSpan))
+            try
             {
-                int i = 0;
-                foreach (var pixel in pixelSpan)
+                using var image = Image.Load<Rgba32>(filename);
+
+                internalBuffer = new byte[image.Width * image.Height * 4];
+
+                if (image.TryGetSinglePixelSpan(out var pixelSpan))
                 {
-                    internalBuffer[i++] = pixel.B;
-                    internalBuffer[i++] = pixel.G;
-                    internalBuffer[i++] = pixel.R;
-                    internalBuffer[i++] = pixel.A;
+                    int i = 0;
+                    foreach (var pixel in pixelSpan)
+                    {
+                        internalBuffer[i++] = pixel.B;
+                        internalBuffer[i++] = pixel.G;
+                        internalBuffer[i++] = pixel.R;
+                        internalBuffer[i++] = pixel.A;
+                    }
                 }
             }
+            catch (Exception) { }
+        }
+
+        public void Load(byte[] buffer)
+        {
+            try
+            {
+                using var image = Image.Load<Rgba32>(buffer);
+
+                internalBuffer = new byte[image.Width * image.Height * 4];
+
+                if (image.TryGetSinglePixelSpan(out var pixelSpan))
+                {
+                    int i = 0;
+                    foreach (var pixel in pixelSpan)
+                    {
+                        internalBuffer[i++] = pixel.B;
+                        internalBuffer[i++] = pixel.G;
+                        internalBuffer[i++] = pixel.R;
+                        internalBuffer[i++] = pixel.A;
+                    }
+                }
+            }
+            catch (Exception) { }
         }
 
         public Color4 Map(float tu, float tv)
@@ -47,10 +78,10 @@ namespace sanjigen.Engine
             if (internalBuffer == null)
                 return Color4.White;
 
-            int u = Math.Abs((int)(tu * width) % width);
-            int v = Math.Abs((int)(tv * height) % height);
+            int u = Math.Abs((int)(tu * _width) % _width);
+            int v = Math.Abs((int)(tv * _height) % _height);
 
-            int pos = (u + v * width) * 4;
+            int pos = (u + v * _width) * 4;
             byte b = internalBuffer[pos];
             byte g = internalBuffer[pos + 1];
             byte r = internalBuffer[pos + 2];

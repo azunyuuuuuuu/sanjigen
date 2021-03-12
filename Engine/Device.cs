@@ -8,10 +8,13 @@ using System.Drawing;
 using System.Dynamic;
 using sanjigen.Engine.Formats;
 using sanjigen.Engine.MathHelpers;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Formats.Png;
 
 namespace sanjigen.Engine
 {
-public class Device
+    public class Device
     {
         private byte[] backBuffer;
         private readonly float[] depthBuffer;
@@ -436,12 +439,12 @@ public class Device
                 });
             }
         }
-        public async Task<Mesh[]> LoadJSONFileAsync(string filename)
+
+        public Mesh[] LoadFromBabylonFile(string data)
         {
             var meshes = new List<Mesh>();
             var materials = new Dictionary<String, Material>();
 
-            var data = await File.ReadAllTextAsync(filename);
             var jsonObject = System.Text.Json.JsonSerializer.Deserialize<BabylonModelFormat>(data);
 
             for (var materialIndex = 0; materialIndex < jsonObject.Materials.Count; materialIndex++)
@@ -536,7 +539,17 @@ public class Device
 
                 meshes.Add(mesh);
             }
+
             return meshes.ToArray();
+        }
+
+        public async Task<Mesh[]> LoadJSONFileAsync(string filename)
+            => LoadFromBabylonFile(await File.ReadAllTextAsync(filename));
+
+        public string GetBackbufferAsBase64()
+        {
+            using var image = Image.Load<Rgba32>(backBuffer);
+            return image.ToBase64String(PngFormat.Instance);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +14,7 @@ namespace sanjigen.Engine
 
         public Vector3 Normal;
     }
-    public class Mesh
+    public partial class Mesh
     {
         public string Name { get; set; }
         public Vertex[] Vertices { get; private set; }
@@ -23,7 +22,7 @@ namespace sanjigen.Engine
         public Vector3 Position { get; set; }
         public Vector3 Rotation { get; set; }
         public Texture Texture { get; set; }
-        
+
         public Mesh(string name, int verticesCount, int facesCount)
         {
             Vertices = new Vertex[verticesCount];
@@ -33,7 +32,7 @@ namespace sanjigen.Engine
 
         public void ComputeFacesNormals()
         {
-            Parallel.For(0, Faces.Length, faceIndex =>
+            Parallel.For(0, Faces.Length, new ParallelOptions { TaskScheduler = new AlwaysInlineScheduler() }, faceIndex =>
             {
                 var face = Faces[faceIndex];
                 var vertexA = Vertices[face.A];
@@ -43,7 +42,6 @@ namespace sanjigen.Engine
                 Faces[faceIndex].Normal = (vertexA.Normal + vertexB.Normal + vertexC.Normal) / 3.0f;
                 Vector3.Normalize(Faces[faceIndex].Normal);
             });
-
         }
     }
 

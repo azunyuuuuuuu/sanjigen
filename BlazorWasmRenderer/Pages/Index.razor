@@ -1,7 +1,10 @@
 ﻿@page "/"
 
 @inject IJSRuntime _js;
+@inject HttpClient _http;
 
 <div id="renderCanvas" class="fixed inset-0 flex justify-center content-center">
     <BECanvas Width="320" Height="240" @ref="_canvasReference"></BECanvas>
 </div>
+
+<img @ref="rendertarget" hidden id="rendertarget" src=@_rendertarget />
