@@ -18,7 +18,12 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
-        
+      
+    - name: Change base-tag in index.html from / to sanjigen
+      run: sed -i 's/<base href="\/" \/>/<base href="\/sanjigen\/" \/>/g' ./BlazorWasmRenderer/wwwroot/index.html
+    - name: Copy index.html to 404.html
+      run: cp ./BlazorWasmRenderer/wwwroot/index.html ./BlazorWasmRenderer/wwwroot/404.html
+
     - name: Restore dependencies
       run: dotnet restore ./BlazorWasmRenderer/sanjigen.BlazorWasmRenderer.csproj
 
