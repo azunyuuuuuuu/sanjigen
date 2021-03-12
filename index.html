@@ -88,6 +88,17 @@
             // game.canvas.style.margin = margin;
         };
 
+        function DrawImage(canvas, imgUrl, dx, dy, dw, dh) {
+            let ctx = canvas.getContext('2d');
+
+            let img = new Image();
+            img.onload = () => {
+                ctx.drawImage(img, dx, dy, dw, dh);
+            };
+
+            img.src = imgUrl;
+        }
+
     </script>
 
     <style>
