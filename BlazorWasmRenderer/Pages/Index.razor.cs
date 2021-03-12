@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Blazor.Extensions.Canvas.Canvas2D;
 using Blazor.Extensions;
+using Microsoft.JSInterop;
 
 namespace sanjigen.BlazorWasmRenderer.Pages
 {
@@ -17,16 +18,58 @@ namespace sanjigen.BlazorWasmRenderer.Pages
         private Canvas2DContext _context;
 
         protected BECanvasComponent _canvasReference;
+        private bool _running;
+        private float previousTimestamp = 0;
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            this._context = await this._canvasReference.CreateCanvas2DAsync();
-            await this._context.SetFillStyleAsync("green");
+            if (firstRender)
+            {
+                await _js.InvokeAsync<object>("setDrawCallback", DotNetObjectReference.Create(this));
 
-            await this._context.FillRectAsync(10, 100, 100, 100);
+                _context = await createScaledCanvasContext(_canvasReference, false);
+            }
 
-            await this._context.SetFontAsync("48px serif");
-            await this._context.StrokeTextAsync("Hello Blazor!!!", 10, 100);
+            if (firstRender)
+            {
+                await _context.SetFillStyleAsync("red");
+                await _context.FillRectAsync(0, 0, _canvasReference.Width, _canvasReference.Height);
+            }
+        }
+
+        async ValueTask<Canvas2DContext> createScaledCanvasContext(BECanvasComponent canvas, bool scale)
+        {
+            var context = await canvas.CreateCanvas2DAsync();
+
+            await context.SetTextBaselineAsync(TextBaseline.Top);
+
+            if (scale)
+                await context.ScaleAsync(3, 3);
+
+            return context;
+        }
+
+        [JSInvokable]
+        public async ValueTask RenderLoop(float timeStamp)
+        {
+            if (_running)
+                return;
+
+            _running = true;
+
+            var currentFps = 1000/(timeStamp - previousTimestamp);
+
+            await _context.SetFillStyleAsync("red");
+            await _context.FillRectAsync(0, 0, _canvasReference.Width, _canvasReference.Height);
+
+            await _context.SetFontAsync("10px sans-serif");
+
+            await _context.SetFillStyleAsync("white");
+            await _context.FillTextAsync($"{string.Format("{0:0.0}", currentFps)} fps", 10, 10);
+
+            previousTimestamp = timeStamp;
+
+            _running = false;
         }
     }
 }

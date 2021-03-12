@@ -1,3 +1,7 @@
 ﻿@page "/"
 
-<BECanvas Width="320" Height="240" @ref="_canvasReference"></BECanvas>
+@inject IJSRuntime _js;
+
+<div id="renderCanvas" class="fixed inset-0 flex justify-center content-center">
+    <BECanvas Width="320" Height="240" @ref="_canvasReference"></BECanvas>
+</div>

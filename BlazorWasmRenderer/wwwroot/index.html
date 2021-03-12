@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>sanjigen.BlazorWasmRenderer</title>
     <base href="/" />
-    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <link href="css/app.css" rel="stylesheet" />
     <link href="sanjigen.BlazorWasmRenderer.styles.css" rel="stylesheet" />
 </head>
@@ -21,6 +21,81 @@
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="_content/Blazor.Extensions.Canvas/blazor.extensions.canvas.js"></script>
+
+    <script>
+        async function init() {
+            var e = document.getElementById('renderCanvas');
+
+            e.imageSmoothingEnabled = false;
+            // Start the first frame request
+            window.requestAnimationFrame(renderLoop);
+        }
+
+        window.setDrawCallback = (instance) => {
+
+            window.theInstance = instance;
+
+            // window.addEventListener("resize", resizeGame);
+            // resizeGame();
+
+            var e = document.getElementById('renderCanvas');
+
+            window.requestAnimationFrame(renderLoop);
+        }
+
+        function renderLoop(timeStamp) {
+            window.requestAnimationFrame(renderLoop);
+            theInstance.invokeMethodAsync('RenderLoop', timeStamp);
+        }
+
+        function resizeGame() {
+            var game = {
+                canvas: document.getElementById("renderCanvas"),
+                width: 320,
+                height: 240
+            }
+
+            var newGameWidth, newGameHeight;
+
+            // Get the dimensions of the viewport
+            var viewport = {
+                width: window.innerWidth,
+                height: window.innerHeight
+            };
+
+            // Determine game size
+            const ratio = game.height / game.width;
+
+            const viewportRatio = viewport.height / viewport.width;
+
+            if (ratio > viewportRatio) {
+                newGameHeight = viewport.height;
+                newGameWidth = newGameHeight * game.width / game.height;
+            } else {
+                newGameWidth = viewport.width;
+                newGameHeight = newGameWidth * game.height / game.width;
+            }
+
+            game.canvas.style.width = newGameWidth + "px";
+            game.canvas.style.height = newGameHeight + "px";
+
+            var paddingX = (viewport.width - newGameWidth) / 2;
+            var paddingY = (viewport.height - newGameHeight) / 2;
+
+            var margin = paddingY + "px " + paddingX + "px";
+
+            // Set the new margin of the game so it will be centered
+            // game.canvas.style.margin = margin;
+        };
+
+    </script>
+
+    <style>
+        canvas {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+    </style>
 </body>
 
 </html>
