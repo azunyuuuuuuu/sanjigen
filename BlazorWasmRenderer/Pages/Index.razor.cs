@@ -13,6 +13,8 @@ using Microsoft.JSInterop;
 using sanjigen.Engine;
 using sanjigen.Engine.MathHelpers;
 using Microsoft.AspNetCore.Components;
+using System.Runtime.InteropServices;
+using Microsoft.JSInterop.WebAssembly;
 
 namespace sanjigen.BlazorWasmRenderer.Pages
 {
@@ -21,7 +23,7 @@ namespace sanjigen.BlazorWasmRenderer.Pages
         private Canvas2DContext _context;
 
         protected BECanvasComponent _canvasReference;
-        private bool _running;
+        private bool _running = true;
         private float previousTimestamp = 0;
         private Device _device;
         private Mesh[] _meshes = new Mesh[0];
@@ -51,6 +53,10 @@ namespace sanjigen.BlazorWasmRenderer.Pages
 
             _camera.Position = new Vector3(0, 0, 10.0f);
             _camera.Target = Vector3.Zero;
+
+            await _js.InvokeAsync<bool>("InitCanvas");
+
+            _running = false;
         }
 
         async ValueTask<Canvas2DContext> createScaledCanvasContext(BECanvasComponent canvas, bool scale)
@@ -86,9 +92,11 @@ namespace sanjigen.BlazorWasmRenderer.Pages
 
             _device.Render(_camera, _meshes);
 
-            _rendertarget = _device.GetBackbufferAsBase64();
+            // _rendertarget = _device.GetBackbufferAsBase64();
 
-            await DrawImage(_canvasReference.CanvasReference, _rendertarget, 0, 0, 320, 240);
+            // await DrawImage(_canvasReference.CanvasReference, _rendertarget, 0, 0, 320, 240);
+
+            FlipBuffer();
 
             await _context.SetFontAsync("10px sans-serif");
             await _context.SetFillStyleAsync("white");
@@ -97,6 +105,17 @@ namespace sanjigen.BlazorWasmRenderer.Pages
             previousTimestamp = timeStamp;
 
             _running = false;
+        }
+
+        private void FlipBuffer()
+        {
+            uint[] buffer = new uint[_device.BackBuffer.Length / 4];
+            Buffer.BlockCopy(_device.BackBuffer, 0, buffer, 0, _device.BackBuffer.Length);
+            var gch = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+            var pinned = gch.AddrOfPinnedObject();
+            var mono = _js as WebAssemblyJSRuntime;
+            mono.InvokeUnmarshalled<IntPtr, bool>("PaintCanvas", pinned);
+            gch.Free();
         }
 
         public async Task<object> DrawImage(ElementReference canvas, string url, double dx, double dy, double dw, double dh)
