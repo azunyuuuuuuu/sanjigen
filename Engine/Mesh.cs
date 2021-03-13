@@ -32,16 +32,16 @@ namespace sanjigen.Engine
 
         public void ComputeFacesNormals()
         {
-            Parallel.For(0, Faces.Length, new ParallelOptions { TaskScheduler = new AlwaysInlineScheduler() }, faceIndex =>
+            for (int i = 0; i < Faces.Length; i++)
             {
-                var face = Faces[faceIndex];
+                var face = Faces[i];
                 var vertexA = Vertices[face.A];
                 var vertexB = Vertices[face.B];
                 var vertexC = Vertices[face.C];
 
-                Faces[faceIndex].Normal = (vertexA.Normal + vertexB.Normal + vertexC.Normal) / 3.0f;
-                Vector3.Normalize(Faces[faceIndex].Normal);
-            });
+                Faces[i].Normal = (vertexA.Normal + vertexB.Normal + vertexC.Normal) / 3.0f;
+                Vector3.Normalize(Faces[i].Normal);
+            }
         }
     }
 

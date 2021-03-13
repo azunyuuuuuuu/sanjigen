@@ -40,7 +40,7 @@ namespace sanjigen.BlazorWasmRenderer.Pages
 
             _context = await createScaledCanvasContext(_canvasReference, false);
 
-            await _context.SetFillStyleAsync("red");
+            await _context.SetFillStyleAsync("blue");
             await _context.FillRectAsync(0, 0, _canvasReference.Width, _canvasReference.Height);
 
             _device = new Device((int)_canvasReference.Width, (int)_canvasReference.Height);
@@ -109,9 +109,9 @@ namespace sanjigen.BlazorWasmRenderer.Pages
 
         private void FlipBuffer()
         {
-            uint[] buffer = new uint[_device.BackBuffer.Length / 4];
-            Buffer.BlockCopy(_device.BackBuffer, 0, buffer, 0, _device.BackBuffer.Length);
-            var gch = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+            // uint[] buffer = new uint[_device.BackBuffer.Length / 4];
+            // Buffer.BlockCopy(_device.BackBuffer, 0, buffer, 0, _device.BackBuffer.Length);
+            var gch = GCHandle.Alloc(_device.BackBuffer, GCHandleType.Pinned);
             var pinned = gch.AddrOfPinnedObject();
             var mono = _js as WebAssemblyJSRuntime;
             mono.InvokeUnmarshalled<IntPtr, bool>("PaintCanvas", pinned);

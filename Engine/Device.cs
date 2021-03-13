@@ -408,11 +408,8 @@ namespace sanjigen.Engine
                 var worldView = worldMatrix * viewMatrix;
                 var transformMatrix = worldView * projectionMatrix;
 
-
-                Parallel.For(0, mesh.Faces.Length, faceIndex =>
-                {
-                    var face = mesh.Faces[faceIndex];
-
+                foreach (var face in mesh.Faces)
+                {                    
                     /*var transformedNormal = Vector3.TransformNormal(face.Normal, worldView);
                     if (transformedNormal.Z > 90)
                     {
@@ -421,9 +418,9 @@ namespace sanjigen.Engine
 
                     var test = Vector3.TransformCoordinate(face.Normal, worldMatrix);
                     var cameraPosition = camera.Position - mesh.Vertices[face.A].WorldCoordinates;
-                    var angle = Vector3.Dot(Vector3.Normalize(test), Vector3.Normalize(cameraPosition));
-                    if (angle < -0.1f)
-                        return;
+                    // var angle = Vector3.Dot(Vector3.Normalize(test), Vector3.Normalize(cameraPosition));
+                    // if (angle < -0.1f)
+                    //     return;
 
                     var vertexA = mesh.Vertices[face.A];
                     var vertexB = mesh.Vertices[face.B];
@@ -433,10 +430,10 @@ namespace sanjigen.Engine
                     var pixelB = Project(vertexB, transformMatrix, worldMatrix);
                     var pixelC = Project(vertexC, transformMatrix, worldMatrix);
 
-                    //var color = 0.25f + (faceIndex % mesh.Faces.Length) * 0.75f / mesh.Faces.Length;
+                    // var color = 0.25f + (1 % mesh.Faces.Length) * 0.75f / mesh.Faces.Length;
                     var color = 1.0f;
                     DrawTriangle(pixelA, pixelB, pixelC, new Color4(color, color, color, 1), mesh.Texture);
-                });
+                }
             }
         }
 
