@@ -23,6 +23,8 @@
     <script src="_content/Blazor.Extensions.Canvas/blazor.extensions.canvas.js"></script>
 
     <script>
+
+
         async function init() {
             var e = document.getElementById('renderCanvas');
 
@@ -99,6 +101,35 @@
             img.src = imgUrl;
         }
 
+        var canvas;
+        var context;
+        var imageData;
+        window.InitCanvas = function InitCanvas() {
+            canvas = document.querySelector("#renderCanvas > canvas");
+            context = canvas.getContext('2d');
+            context.mozImageSmoothingEnabled = false;
+            context.webkitImageSmoothingEnabled = false;
+            context.msImageSmoothingEnabled = false;
+            context.imageSmoothingEnabled = false;
+            imageData = context.createImageData(320, 240);
+            return true;
+        }
+
+        window.DrawCanvas = function DrawCanvas(dataPtr) {
+            imageData.data.set(Uint8ClampedArray.from(Module.HEAPU8.subarray(dataPtr, dataPtr + imageData.data.length)));
+            context.putImageData(imageData, 0, 0);
+            context.drawImage(canvas, 0, 0, canvas.width, canvas.height);
+            console.log("henlo");
+            // lastcall = performance.now();
+            return true;
+        }
+
+        window.PaintCanvas = function PaintCanvas(dataPtr) {
+            imageData.data.set(Uint8ClampedArray.from(Module.HEAPU8.subarray(dataPtr, dataPtr + imageData.data.length)));
+            context.putImageData(imageData, 0, 0);
+            context.drawImage(canvas, 0, 0, canvas.width, canvas.height);
+            return true;
+        }
     </script>
 
     <style>
