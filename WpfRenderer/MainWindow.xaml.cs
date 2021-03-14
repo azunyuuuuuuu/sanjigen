@@ -40,7 +40,7 @@ namespace sanjigen.WpfRenderer
 
             // Our XAML Image control
             FrontBuffer.Source = _bmp;
-            _meshes = await _device.LoadJSONFileAsync("monkey.babylon");
+            _meshes = await _device.LoadJSONFileAsync(System.IO.Path.Combine("Assets", "monkey.babylon"));
 
             _camera.Position = new Vector3(0, 0, 10.0f);
             _camera.Target = Vector3.Zero;
@@ -54,7 +54,7 @@ namespace sanjigen.WpfRenderer
         private void CompositionTarget_Rendering(object sender, EventArgs e)
         {
             _device.Clear(0, 0, 0, 255);
-            
+
             // calculate fps
             var now = DateTime.Now;
             var currentFps = 1000.0 / (now - previousDate).TotalMilliseconds;

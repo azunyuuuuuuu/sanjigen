@@ -31,7 +31,7 @@ namespace sanjigen.Engine
         {
             try
             {
-                using var image = Image.Load<Rgba32>(filename);
+                using var image = Image.Load<Rgba32>(Path.Combine("Assets", filename));
 
                 internalBuffer = new byte[image.Width * image.Height * 4];
 
