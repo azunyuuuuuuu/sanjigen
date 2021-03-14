@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -27,9 +27,8 @@ jobs:
       
     - name: Zip up release folder
       run: |
-        mkdir publish
-        cd release
-        zip -r ../publish/dev-win-x64.zip *
+        New-Item -ItemType Directory -Force publish
+        Get-ChildItem .\release\ | Compress-Archive -DestinationPath "publish/dev-win-x64.zip"
 
     - name: Publish release
       uses: "marvinpinto/action-automatic-releases@latest"
