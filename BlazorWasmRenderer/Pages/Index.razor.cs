@@ -15,6 +15,7 @@ using sanjigen.Engine.MathHelpers;
 using Microsoft.AspNetCore.Components;
 using System.Runtime.InteropServices;
 using Microsoft.JSInterop.WebAssembly;
+using System.IO;
 
 namespace sanjigen.BlazorWasmRenderer.Pages
 {
@@ -45,11 +46,11 @@ namespace sanjigen.BlazorWasmRenderer.Pages
 
             _device = new Device((int)_canvasReference.Width, (int)_canvasReference.Height);
 
-            var tempdata = await _http.GetStringAsync("monkey.babylon");
+            var tempdata = await _http.GetStringAsync(Path.Combine("assets", "monkey.babylon"));
             _meshes = _device.LoadFromBabylonFile(tempdata);
 
             foreach (var mesh in _meshes)
-                mesh.Texture.Load(await _http.GetByteArrayAsync(mesh.Texture._filename));
+                mesh.Texture.Load(await _http.GetByteArrayAsync(Path.Combine("assets", mesh.Texture._filename)));
 
             _camera.Position = new Vector3(0, 0, 10.0f);
             _camera.Target = Vector3.Zero;
