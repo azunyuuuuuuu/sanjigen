@@ -10,4 +10,7 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Include="Assets\**\*" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
