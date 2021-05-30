@@ -17,8 +17,12 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.x
-      
+        dotnet-version: '6.0.x'
+        include-prerelease: true
+
+    - name: install the Blazor WASM AOT workload
+      run: dotnet workload install microsoft-net-sdk-blazorwebassembly-aot
+        
     - name: Change base-tag in index.html from / to sanjigen
       run: sed -i 's/<base href="\/" \/>/<base href="\/sanjigen\/" \/>/g' ./BlazorWasmRenderer/wwwroot/index.html
     - name: Copy index.html to 404.html
