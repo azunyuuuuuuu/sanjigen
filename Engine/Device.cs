@@ -61,9 +61,9 @@ namespace sanjigen.Engine
 
                 depthBuffer[index] = z;
 
-                backBuffer[index4] = (byte)(color.Blue * 255);
+                backBuffer[index4] = (byte)(color.Red * 255);
                 backBuffer[index4 + 1] = (byte)(color.Green * 255);
-                backBuffer[index4 + 2] = (byte)(color.Red * 255);
+                backBuffer[index4 + 2] = (byte)(color.Blue * 255);
                 backBuffer[index4 + 3] = (byte)(color.Alpha * 255);
             }
         }
@@ -75,9 +75,9 @@ namespace sanjigen.Engine
             for (var index = 0; index < backBuffer.Length; index += 4)
             {
                 // BGRA is used by Windows instead by RGBA in HTML5
-                backBuffer[index] = b;
+                backBuffer[index] = r;
                 backBuffer[index + 1] = g;
-                backBuffer[index + 2] = r;
+                backBuffer[index + 2] = b;
                 backBuffer[index + 3] = a;
             }
 
