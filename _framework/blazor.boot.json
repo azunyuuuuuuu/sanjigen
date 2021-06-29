@@ -24,7 +24,7 @@
       "Microsoft.JSInterop.dll": "sha256-Gijr+2PGiEPH075skYnpLHQ72YDYeTeaDqS1FERQQh8=",
       "Microsoft.JSInterop.WebAssembly.dll": "sha256-pggHRdysP2kbGeO1QSJ27onSRoJonqLyzIKyuxDTMb0=",
       "SixLabors.ImageSharp.dll": "sha256-gsQ+EjDYkrhe7kTqy33UpGj+uuk4cxFHZtqpfp0IxP4=",
-      "sanjigen.Engine.dll": "sha256-lhkwgj494NtwnBaLEb02GapkegkqGRxGZZhSgUooh\/E=",
+      "sanjigen.Engine.dll": "sha256-UDrgMR82i8rvDTOugGOXh4bvNGyBzvonTHVPB0y\/g68=",
       "sanjigen.BlazorWasmRenderer.dll": "sha256-4ma2j7u24wwRv8btuOG59Of2D\/8MSLu9\/8q1juDL\/FM=",
       "System.Buffers.dll": "sha256-ttbFa99tHRThJl2O4YeFDzOos8l+JYVwGGJIxP16254=",
       "System.Collections.Concurrent.dll": "sha256-wJWcDGbQzk7KLDTS2NyacmMt0E6SeInMpBjoLBV+UAs=",
@@ -78,7 +78,7 @@
       "pal_random.js": "sha256-v4\/eLlpYE4zerV6MEeNFhxtqGx0tgJmUCQiYtCI0qv0=",
       "pinvoke.c": "sha256-hbkNQPz9HtrSlEf8o3Oo99CP0l+BwwkwVe1\/Ji1b1yQ=",
       "dotnet.6.0.0-preview.5.21301.5.js": "sha256-TpaeoY81nR0RvhXmBRlh7cibXwhncCg6TRd+IDIy+b0=",
-      "dotnet.wasm": "sha256-nKxjgO2a7mtTu\/g6qScWNSTsH01DGznDWc4BCZM4iOY="
+      "dotnet.wasm": "sha256-fpnh8B7KVxfXm3nOMcqgtdzlJUEx\/KoRUV0xrePkFz0="
     },
     "satelliteResources": null
   }
