@@ -21,7 +21,7 @@ jobs:
         include-prerelease: true
 
     - name: install the Blazor WASM AOT workload
-      run: dotnet workload install microsoft-net-sdk-blazorwebassembly-aot
+      run: dotnet workload install wasm-tools
         
     - name: Change base-tag in index.html from / to sanjigen
       run: sed -i 's/<base href="\/" \/>/<base href="\/sanjigen\/" \/>/g' ./BlazorWasmRenderer/wwwroot/index.html
